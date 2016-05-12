@@ -5,35 +5,40 @@
 .global start
 start:
 .text
-         cli
-	 cld
+	cli
+	cld
 
 # 1. Set DS, ES, SS
-	xorw	%ax, %ax
-        movw    %ax, %ds
-        movw    %ax, %es
-        movw    %ax, %ss
+	xorw  %ax, %ax
+        movw  %ax, %ds
+        movw  %ax, %es
+        movw  %ax, %ss
 
 # 2. Clear screen
-        movw    $0x0600, %ax
-        movw    $0x0700, %bx
-        movw    $0, %cx
-        movb    $80, %dl
-        movb    $25, %dh
-         int    $0x10
+        movw  $0x0600, %ax
+        movw  $0x0700, %bx
+        movw  $0, %cx
+        movb  $80, %dl
+        movb  $25, %dh
+         int  $0x10
 
-# 3. Show "hello world"
-        movw    $msg, %ax
-        movw    %ax, %bp
-        movw    $0x00c, %bx
-        movw    $12, %cx
-	movw	$0, %dx
-        movw    $0x1301, %ax
-         int    $0x10
+# 3. Show "Hello World!" 
+	movw  $msg, %si
+	movw  $0xb800, %ax
+	movw  %ax, %es
+	movw  $0, %di
 
-         jmp    . 
+s:	movsb /* ss:si -> es:di */
+	movb  $0x04, %es:(%di)
+	 inc  %di
+	cmpb  $0, (%si)
+	 jne  s
 
-msg: .ascii "hello world!"
+# 4. Read setup.S
+
+         jmp  . 
+
+msg: .asciz "Hello World!"
 
 .org 510 
 MBR: .word 0xAA55
